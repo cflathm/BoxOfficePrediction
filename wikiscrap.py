@@ -12,8 +12,8 @@ class movie:
   writers = []
   starring = []
   editors = []
-  production_company = ""
-  distribution_company = ""
+  production_company = []
+  distribution_company = []
   release_date = ""
   run_time = ""
   budget = ""
@@ -148,11 +148,17 @@ def scrapePage(url):
 
     #production_company
     if row.find('th') and 'Production' in row.findAll('th')[0].text:
-      film.production_company = row.findAll('td')[0].text
+      if row.find('li'):
+        film.productoin_company = appendList(row)
+      else:
+        film.production_company.apend(row.findAll('td')[0].text)
 
     #distribution_company
     if row.find('th') and 'Distributed by' in row.findAll('th')[0].text:
-      film.distribution_company = row.findAll('td')[0].text
+      if row.find('li'):
+        film.distribution_company = appendList(row)
+      else:
+        film.distribution_company.append(row.findAll('td')[0].text)
 
     #run_time
     if row.find('th') and 'Running time' in row.findAll('th')[0].text: 

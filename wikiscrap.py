@@ -1,19 +1,47 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+from pprint import pprint
 import time
 import re
+
+dict = {}
+
+class movie:
+  directors = []
+  producers = []
+  writers = []
+  starring = []
+  editors = []
+  production_company = ""
+  distribution_company = ""
+  release_date = ""
+  run_time = ""
+  budget = ""
+  box_office = ""
+  url = ""
+
+
+
 def main():
-  urls = getUrls()
-  csv_file = open('BoxOffice.csv', 'w+')
-  csv_file.write("Title, Release Date, Box Office\n")
+  x = 0
+  #urls = getUrls()
+  '''
   for url in urls:
+    x = x + 1
+    if x == 20:
+      break
     try:
       scrapePage(url, csv_file)
     except Exception as e:
       print(e)
     time.sleep(.0005)
     print("Scraped: "+ url)
-  #scrapePage("https://en.wikipedia.org/wiki/Internal_Affairs_(film)",csv_file)
+  '''
+  
+  scrapePage("https://en.wikipedia.org/wiki/Speed_Racer_(film)")
+  for x in dict:
+    print(dict[x].producers)
+
 
 
 def getUrls():
@@ -41,7 +69,10 @@ def getUrls():
           urls.append(init + link['href'])
   return urls  
 
-def scrapePage(url, csv_file):
+def scrapePage(url):
+  film = movie()
+  film.url = url
+
   page = urlopen(url)
   soup = BeautifulSoup(page, 'html.parser')
   table = soup.find('table', {'class', 'infobox vevent'})
@@ -50,14 +81,17 @@ def scrapePage(url, csv_file):
   num = "";
   date = "";
   for row in rows:
+    #release_date
     if row.find('span') and 'Release date' in row.findAll('th')[0].text:
       date = row.findAll('span')[0].text.replace(' ','_').replace(',','_').replace('(','').replace(')','')[1:]
-      outRow = outRow + ',' + date
-    if row.find('th') and 'Box office' in row.findAll('th')[0].text:
-    
-      num = row.findAll('td')[0].text.split('[')[0].replace(',','')
+      film.release_date = date
+      #outRow = outRow + ',' + date
 
-
+    #box_office
+    if row.find('th') and 'Box office' in row.findAll('th')[0].text:   
+      num = row.findAll('td')[0].text #.split('[')[0].replace(',','')
+      film.box_office = num
+      '''
       multi = 1
       if 'million' in num:
         multi = 1000000
@@ -70,12 +104,77 @@ def scrapePage(url, csv_file):
         num = num.split('$')[1]
       num = num.split(' ')[0].replace(')','')
       num = float(num) * multi
-      outRow = outRow + ',' + str(int(num))
+      #outRow = outRow + ',' + str(int(num))
+      '''   
+
+    #writers
+    if row.find('th') and 'Screenplay by' in row.findAll('th')[0].text:
+      if row.find('li'):
+        film.writers = appendList(row)
+      else:
+        film.writers.append(row.findAll('td')[0].text)
+
     
-  if date == "" or num == "" or int(num) < 100:
+    #directors
+    if row.find('th') and 'Directed by' in row.findAll('th')[0].text:
+      if row.find('li'):
+        film.directors = appendList(row)
+      else:
+        film.directors.append(row.findAll('td')[0].text)
+  
+    
+    #producers
+    if row.find('th') and 'Produced by' in row.findAll('th')[0].text:
+      if row.find('li'):
+        film.producers = appendList(row)
+      else:
+        film.producers.append(row.findAll('td')[0].text)
+
+
+    
+    #starring
+    if row.find('th') and 'Starring' in row.findAll('th')[0].text:
+      if row.find('li'):
+        film.starring = appendList(row)
+      else:
+        film.starring.append(row.findAll('td')[0].text)
+    
+    #editors
+    if row.find('th') and 'Edited by' in row.findAll('th')[0].text:
+      if row.find('li'):
+        film.editors = appendList(row)
+      else: 
+        film.editors.append(row.findAll('td')[0].text)
+
+    #production_company
+    if row.find('th') and 'Production' in row.findAll('th')[0].text:
+      film.production_company = row.findAll('td')[0].text
+
+    #distribution_company
+    if row.find('th') and 'Distributed by' in row.findAll('th')[0].text:
+      film.distribution_company = row.findAll('td')[0].text
+
+    #run_time
+    if row.find('th') and 'Running time' in row.findAll('th')[0].text: 
+      film.run_time = row.findAll('td')[0].text
+
+    #budget   
+    if row.find('th') and 'Budget' in row.findAll('th')[0].text:
+      film.budget = row.findAll('td')[0].text
+ 
+  #movie check
+  if date == "" or num == "" :
     print("not movie: " + url)
     return
-  csv_file.write(outRow+'\n')
+  dict[url] = film
+  #csv_file.write(outRow+'\n')
+
+def appendList(row):
+  ret = []
+  for item in row.findAll('li'):
+    ret.append(item.text)
+  return ret
+  
 
 if __name__ == "__main__":
   main()

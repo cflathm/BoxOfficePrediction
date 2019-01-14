@@ -4,7 +4,7 @@ from pprint import pprint
 import time
 import re
 
-dict = {}
+res = {}
 
 class movie:
   directors = []
@@ -24,24 +24,25 @@ class movie:
 
 def main():
   x = 0
-  #urls = getUrls()
-  '''
+  urls = getUrls()
+  #'''
   for url in urls:
     x = x + 1
-    if x == 20:
-      break
+    #if x == 20:
+    #  break
     try:
-      scrapePage(url, csv_file)
+      scrapePage(url)
     except Exception as e:
       print(e)
     time.sleep(.0005)
     print("Scraped: "+ url)
-  '''
+  #'''
   
-  scrapePage("https://en.wikipedia.org/wiki/Speed_Racer_(film)")
-  for x in dict:
-    print(dict[x].producers)
-
+  #scrapePage("https://en.wikipedia.org/wiki/Speed_Racer_(film)")
+  #for x in res:
+  #  print(x)
+  #  print("**\n" + str(res[x].starring) + "\n***")
+  return res
 
 
 def getUrls():
@@ -112,7 +113,7 @@ def scrapePage(url):
       if row.find('li'):
         film.writers = appendList(row)
       else:
-        film.writers.append(row.findAll('td')[0].text)
+        film.writers = [row.findAll('td')[0].text]
 
     
     #directors
@@ -120,7 +121,7 @@ def scrapePage(url):
       if row.find('li'):
         film.directors = appendList(row)
       else:
-        film.directors.append(row.findAll('td')[0].text)
+        film.directors = [row.findAll('td')[0].text]
   
     
     #producers
@@ -128,7 +129,7 @@ def scrapePage(url):
       if row.find('li'):
         film.producers = appendList(row)
       else:
-        film.producers.append(row.findAll('td')[0].text)
+        film.producers = [row.findAll('td')[0].text]
 
 
     
@@ -137,28 +138,28 @@ def scrapePage(url):
       if row.find('li'):
         film.starring = appendList(row)
       else:
-        film.starring.append(row.findAll('td')[0].text)
+        film.starring = [row.findAll('td')[0].text]
     
     #editors
     if row.find('th') and 'Edited by' in row.findAll('th')[0].text:
       if row.find('li'):
         film.editors = appendList(row)
       else: 
-        film.editors.append(row.findAll('td')[0].text)
+        film.editors = [row.findAll('td')[0].text]
 
     #production_company
     if row.find('th') and 'Production' in row.findAll('th')[0].text:
       if row.find('li'):
-        film.productoin_company = appendList(row)
+        film.production_company = appendList(row)
       else:
-        film.production_company.apend(row.findAll('td')[0].text)
+        film.production_company = [row.findAll('td')[0].text]
 
     #distribution_company
     if row.find('th') and 'Distributed by' in row.findAll('th')[0].text:
       if row.find('li'):
         film.distribution_company = appendList(row)
       else:
-        film.distribution_company.append(row.findAll('td')[0].text)
+        film.distribution_company = [row.findAll('td')[0].text]
 
     #run_time
     if row.find('th') and 'Running time' in row.findAll('th')[0].text: 
@@ -172,8 +173,8 @@ def scrapePage(url):
   if date == "" or num == "" :
     print("not movie: " + url)
     return
-  dict[url] = film
-  #csv_file.write(outRow+'\n')
+  #print(film.production_company)
+  res[url] = film 
 
 def appendList(row):
   ret = []

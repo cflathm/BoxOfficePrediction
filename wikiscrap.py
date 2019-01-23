@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 from pprint import pprint
 import time
 import re
+import pickle
+import json
 
 res = {}
 
@@ -23,18 +25,18 @@ class movie:
 
 
 def main():
-  x = 0
+  #x = 0
   urls = getUrls()
   #'''
   for url in urls:
-    x = x + 1
+    #x = x + 1
     #if x == 20:
     #  break
     try:
       scrapePage(url)
     except Exception as e:
       print(e)
-    time.sleep(.0005)
+    #time.sleep(.00005)
     print("Scraped: "+ url)
   #'''
   
@@ -49,7 +51,7 @@ def getUrls():
   init = "https://en.wikipedia.org"
   clss = "wikitable sortable jquery-tablesorter"
   base = []
-  for i in range(1990, 2018):
+  for i in range(1980, 2018):
     url = "https://en.wikipedia.org/wiki/"+str(i)+"_in_film"
     base.append([url, i])
 
@@ -174,7 +176,7 @@ def scrapePage(url):
     print("not movie: " + url)
     return
   #print(film.production_company)
-  res[url] = film 
+  res[url] = json.dumps(film.__dict__) 
 
 def appendList(row):
   ret = []
